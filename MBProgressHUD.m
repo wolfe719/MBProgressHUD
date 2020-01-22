@@ -83,8 +83,10 @@ static const CGFloat MBDefaultDetailsLabelFontSize = 12.f;
     _margin = 20.0f;
     _defaultMotionEffectsEnabled = NO;
 
-    if (@available(iOS 13.0, tvOS 13, *)) {
-       _contentColor = [[UIColor labelColor] colorWithAlphaComponent:0.7f];
+    if (@available(iOS 13.0, *)) {
+           _contentColor = [[UIColor labelColor] colorWithAlphaComponent:0.7f];
+    } else if (@available(tvOS 13, *)) {
+          _contentColor = [[UIColor labelColor] colorWithAlphaComponent:0.7f];
     } else {
         _contentColor = [UIColor colorWithWhite:0.f alpha:0.7f];
     }
@@ -372,16 +374,21 @@ static const CGFloat MBDefaultDetailsLabelFontSize = 12.f;
             // Update to indeterminate indicator
             UIActivityIndicatorView *activityIndicator;
             [indicator removeFromSuperview];
-#if !TARGET_OS_MACCATALYST
+
+#if TARGET_OS_MACCATALYST
+            style = UIActivityIndicatorViewStyleLarge;
+            activityIndicator.color = [UIColor whiteColor];
+#else
             if (@available(iOS 13.0, *)) {
-#endif
-                activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+                style = UIActivityIndicatorViewStyleLarge;
                 activityIndicator.color = [UIColor whiteColor];
-#if !TARGET_OS_MACCATALYST
-            } else {
-               activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+            } else if (@available(tvOS 13.0, *)) {
+                style = UIActivityIndicatorViewStyleLarge;
+                activityIndicator.color = [UIColor whiteColor];
             }
 #endif
+            activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];
+
             [activityIndicator startAnimating];
             indicator = activityIndicator;
             [self.bezelView addSubview:indicator];
